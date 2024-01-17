@@ -353,7 +353,7 @@
             };
 
             function addNewLink(label, hashFragment) {
-                const link = "https://spyridonasp.github.io/secretsanta/#" + hashFragment;
+                const link = "https://" + location.hostname + location.pathname + "#" + hashFragment;
                 const inputID = "link-" + Math.floor(allLinksDiv.childElementCount / 3);
 
                 let participantName = document.createElement("label");
