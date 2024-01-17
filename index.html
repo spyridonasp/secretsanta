@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Secret Santa Generator</title>
+        <meta name="description" content="Simple and private Secret Santa generator that helps you generate random pairings for your Secret Santa gift exchange">
+        <style>
+            :root {
+                --background-color: white;
+                --color: black;
+            }
+
+            html {
+                height: 100%;
+            }
+
+            body {
+                margin: 0;
+                font-family: sans-serif;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                :root {
+                    --background-color: black;
+                    --color: white;
+                }
+
+                body {
+                    background-color: var(--background-color);
+                    color: var(--color);
+                }
+            }
+
+            header > h1 {
+                text-align: center;
+                margin: 0;
+                font-size: 3rem;
+                padding: 3rem 0;
+            }
+
+            main {
+                padding: 0 2rem 2rem;
+                width: calc(100% - 4rem);
+                max-width: 40rem;
+                flex-grow: 1;
+            }
+
+            fieldset {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                border: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            fieldset > legend {
+                padding-bottom: 0.5rem;
+            }
+
+            fieldset > label {
+                display: flex;
+                gap: 1rem;
+            }
+
+            input[type="text"] {
+                font-size: 1rem;
+                flex: 1;
+            }
+
+            #form-buttons {
+                display: flex;
+                justify-content: space-evenly;
+                gap: 1rem;
+                padding: 1rem 0;
+            }
+
+            button {
+                padding: 0.5ch 1ch;
+                font-size: 0.9rem;
+            }
+
+            button.remove {
+                padding: 0 1ch;
+            }
+
+            #all-links-article {
+                display: none;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            #all-links-div {
+                width: 100%;
+                display: grid;
+                grid-template-columns: max-content auto min-content;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            #all-links-div > label {
+                max-width: 10rem;
+                word-break: break-all;
+            }
+
+            .share-link {
+                font-size: 1rem;
+                border: none;
+                padding: 0;
+                height: 1.25rem;
+                background-color: var(--background-color);
+                color: var(--color);
+            }
+
+            .share-link-buttons {
+                display: flex;
+                justify-content: space-evenly;
+                gap: 0.5rem;
+            }
+
+            #line-separator {
+                grid-column: 1 / -1;
+                height: 1px;
+                background-color: var(--background-color);
+                filter: invert(1);
+            }
+
+            #create-individual-links-button {
+                margin: 1rem 0;
+            }
+
+            #participants-article {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            #participants-article > div {
+                flex: 100%;
+                font-size: 1.25rem;
+                padding-bottom: 0.25rem;
+            }
+
+            #participants-article > button {
+                font-size: 1rem;
+                font-weight: bold;
+                flex: auto;
+            }
+
+            #paired-article {
+                display: none;
+                flex-direction: column;
+                font-size: 1.25rem;
+            }
+
+            details {
+                display: inline;
+            }
+
+            summary {
+                display: block;
+                cursor: pointer;
+                padding: 0.25ch 0.5ch;
+                background-color: color-mix(in oklab, var(--background-color), grey 60%);
+            }
+
+            summary::-webkit-details-marker {
+                display: none;
+            }
+
+            button:has(~ div > details[open]) {
+                visibility: hidden;
+            }
+
+            details[open] > summary {
+                display: none;
+            }
+
+            details[open] > div {
+                padding: 0.25ch 0;
+            }
+
+            footer {
+                padding: 1rem;
+                text-align: center;
+            }
+
+            footer > a {
+                color: color-mix(in oklab, var(--color), #c1c1c1 50%);
+            }
+
+            footer > a:hover {
+                color: var(--color);
+            }
+
+            @media screen and (max-width: 425px) {
+                header > h1 {
+                    font-size: 1.75rem;
+                    padding: 2rem 0;
+                }
+
+                #form-buttons {
+                    flex-direction: column;
+                }
+
+                #all-links-div {
+                    grid-template-columns: auto;
+                }
+
+                #participants-article > button {
+                    flex: 100%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Secret Santa Generator</h1>
+        </header>
+        <main>
+            <form>
+                <fieldset>
+                    <legend>Enter participant names</legend>
+                    <label>
+                        <input type="text" name="participantName[]" placeholder="Participant Name" required>
+                        <button type="button" class="remove" style="display: none">Remove</button>
+                    </label>
+                    <label>
+                        <input type="text" name="participantName[]" placeholder="Participant Name" required>
+                        <button type="button" class="remove" style="display: none">Remove</button>
+                    </label>
+                    <label>
+                        <input type="text" name="participantName[]" placeholder="Participant Name" required>
+                        <button type="button" class="remove" style="display: none">Remove</button>
+                    </label>
+                </fieldset>
+                <div id="form-buttons">
+                    <button type="button">Add another participant</button>
+                    <button type="submit">Generate random pairings</button>
+                </div>
+            </form>
+            <article id="all-links-article">
+                <div id="all-links-div"></div>
+                <button id="create-individual-links-button" type="button">Create individual links</button>
+            </article>
+        </main>
+        <footer>
+            <a href="https://github.com/spyridonasp/secretsanta">About</a>
+        </footer>
+        <script type="module">
+            let pairs = {
+                names: [],
+                namesBytes: [],
+                indexes: [],
+                get size() {
+                    return this.names.length;
+                }
+            };
+            let form = document.getElementsByTagName("form")[0];
+            let participantFieldset = form.getElementsByTagName("fieldset")[0];
+            for (const label of participantFieldset.getElementsByTagName("label")) {
+                label.children[1].addEventListener("click", () => removeParticipant(label));
+            }
+            let allLinksArticle = document.getElementById("all-links-article");
+            let allLinksDiv = document.getElementById("all-links-div");
+            let createIndividualLinksButton = document.getElementById("create-individual-links-button");
+            createIndividualLinksButton.addEventListener("click", createIndividualLinks);
+
+            function addParticipant() {
+                let participantRemoveButtons = participantFieldset.getElementsByTagName("button");
+                if (participantRemoveButtons.length === 3) {
+                    for (let removeButton of participantFieldset.getElementsByTagName("button")) {
+                        removeButton.style.display = "";
+                    }
+                }
+
+                let label = participantFieldset.getElementsByTagName("label")[0].cloneNode(true);
+                label.children[0].value = "";
+                label.children[0].required = false;
+                label.children[1].addEventListener("click", () => removeParticipant(label));
+
+                participantFieldset.appendChild(label);
+            }
+
+            function removeParticipant(participantLabelToRemove) {
+                let participantLabels = participantFieldset.getElementsByTagName("label");
+                if (participantLabels.length > 3) {
+                    participantLabelToRemove.remove();
+
+                    if (participantLabels.length === 3) {
+                        for (let participantLabel of participantLabels) {
+                            participantLabel.getElementsByTagName("input")[0].required = true;
+                            participantLabel.getElementsByClassName("remove")[0].style.display = "none";
+                        }
+                    }
+                }
+            }
+
+            function encodeData(data) {
+                return btoa(String.fromCodePoint(...data)).replace(/=/g, '');
+            }
+
+            function decodeData(data) {
+                return Uint8Array.from(atob(data), b => b.codePointAt(0));
+            }
+
+            document.getElementById("form-buttons").children[0].addEventListener("click", addParticipant);
+
+            form.onsubmit = (event) => {
+                event.preventDefault();
+
+                allLinksDiv.replaceChildren();
+                createIndividualLinksButton.style.display = "";
+
+                let formData = new FormData(form);
+                let participantNames = formData.getAll("participantName[]");
+                participantNames = participantNames.map(name => name.trim()).filter(name => name).sort();
+                pairs.names = participantNames;
+                pairs.namesBytes = participantNames.map(name => new TextEncoder().encode(name));
+
+                let pairIndexes = [...Array(pairs.size).keys()];
+                for (let i = pairs.size - 1; i > 0; --i) {
+                    let j = Math.floor(Math.random() * i);
+                    [pairIndexes[i], pairIndexes[j]] = [pairIndexes[j], pairIndexes[i]];
+                }
+                pairs.indexes = pairIndexes;
+
+                let rawData = new Uint8Array(pairs.namesBytes.reduce((count, name) => {
+                    return count + 1 + name.length;
+                }, 0) + 1 + pairs.size);
+
+                let i = 0;
+                for (const name of pairs.namesBytes) {
+                    rawData[i++] = name.length;
+                    rawData.set(name, i);
+                    i += name.length;
+                }
+                ++i;
+                for (const index of pairs.indexes) {
+                    rawData[i++] = index;
+                }
+
+                const encodedData = encodeData(rawData);
+
+                addNewLink("Group Link", encodedData);
+
+                allLinksArticle.style.display = "flex";
+            };
+
+            function addNewLink(label, hashFragment) {
+                const link = "https://spyridonasp.github.io/secretsanta/#" + hashFragment;
+                const inputID = "link-" + Math.floor(allLinksDiv.childElementCount / 3);
+
+                let participantName = document.createElement("label");
+                participantName.htmlFor = inputID;
+                participantName.textContent = label;
+                allLinksDiv.appendChild(participantName);
+
+                let inputElement = document.createElement("input");
+                inputElement.id = inputID;
+                inputElement.classList.add("share-link");
+                inputElement.value = link;
+                inputElement.readOnly = true;
+                allLinksDiv.appendChild(inputElement);
+
+                let shareButtonsDiv = document.createElement("div");
+                shareButtonsDiv.classList.add("share-link-buttons");
+
+                let copyButton = document.createElement("button");
+                copyButton.type = "button";
+                copyButton.textContent = "Copy";
+                copyButton.addEventListener("click", () => copyLink(link));
+                shareButtonsDiv.appendChild(copyButton);
+
+                let shareButton = document.createElement("button");
+                shareButton.type = "button";
+                shareButton.textContent = "Share";
+                shareButton.addEventListener("click", () => shareLink(link));
+                shareButtonsDiv.appendChild(shareButton);
+
+                allLinksDiv.appendChild(shareButtonsDiv);
+            }
+
+            function copyLink(link) {
+                navigator.clipboard.writeText(link);
+            }
+
+            function shareLink(link) {
+                navigator.share({title: "Secret Santa", url: link});
+            }
+
+            function createIndividualLinks() {
+                let lineSeparatorElement = document.createElement("div");
+                lineSeparatorElement.id = "line-separator";
+                allLinksDiv.appendChild(lineSeparatorElement);
+
+                createIndividualLinksButton.style.display = "none";
+
+                for (const [i, name] of pairs.names.entries()) {
+                    let rawData = new Uint8Array(1 + pairs.namesBytes[pairs.indexes[i]].length);
+                    rawData[0] = pairs.namesBytes[pairs.indexes[i]].length;
+                    rawData.set(pairs.namesBytes[pairs.indexes[i]], 1);
+
+                    const encodedData = encodeData(rawData);
+
+                    addNewLink(name, encodedData);
+                }
+            }
+
+            if (location.hash) {
+                const mainElement = document.getElementsByTagName("main")[0];
+                const hash = location.hash.substring(1);
+                const rawData = decodeData(hash);
+
+                let i = 0;
+                let nameSize = rawData[i++];
+                if (1 + nameSize === rawData.length) {
+                    const nameBytes = rawData.subarray(i, i + nameSize);
+                    const name = new TextDecoder("utf-8", {fatal: true}).decode(nameBytes);
+
+                    let pairedArticle = document.createElement("article");
+                    pairedArticle.id = "paired-article";
+                    pairedArticle.style.display = "flex";
+
+                    let congratulationsTextDiv = document.createElement("div");
+                    congratulationsTextDiv.textContent = "Congratulations!";
+                    pairedArticle.appendChild(congratulationsTextDiv);
+
+                    let pairedDiv = document.createElement("div");
+                    pairedDiv.textContent = "You have been paired with ";
+                    pairedArticle.appendChild(pairedDiv);
+
+                    let pairedDetails = document.createElement("details");
+                    pairedDiv.appendChild(pairedDetails);
+
+                    let pairedSummary = document.createElement("summary");
+                    pairedSummary.textContent = "Click to reveal";
+                    pairedDetails.appendChild(pairedSummary);
+
+                    let pairedNameDiv = document.createElement("div");
+                    pairedNameDiv.textContent = name;
+                    pairedDetails.appendChild(pairedNameDiv);
+
+                    mainElement.appendChild(pairedArticle);
+                } else {
+                    while (nameSize !== 0) {
+                        let nameBytes = rawData.subarray(i, i + nameSize);
+                        pairs.names.push(new TextDecoder("utf-8", {fatal: true}).decode(nameBytes));
+
+                        i += nameSize;
+                        nameSize = rawData[i++];
+                    }
+
+                    pairs.indexes = Array.from(rawData.subarray(i));
+
+                    let participantIndex = sessionStorage.getItem(hash);
+
+                    let participantsArticle = document.createElement("article");
+                    participantsArticle.id = "participants-article";
+                    if (participantIndex) {
+                        participantsArticle.style.display = "none";
+                    }
+
+                    let participantsTextDiv = document.createElement("div");
+                    participantsTextDiv.textContent = "Please select your name";
+                    participantsArticle.appendChild(participantsTextDiv);
+
+                    let pairedArticle = document.createElement("article");
+                    pairedArticle.id = "paired-article";
+                    if (participantIndex) {
+                        pairedArticle.style.display = "flex";
+                    }
+
+                    let goBackButton = document.createElement("button");
+                    goBackButton.type = "button";
+                    goBackButton.textContent = "Go back";
+                    goBackButton.style.width = "max-content";
+                    goBackButton.addEventListener("click", () => {
+                        participantsArticle.style.display = "";
+                        pairedArticle.style.display = "";
+                    });
+                    if (participantIndex) {
+                        goBackButton.style.visibility = "hidden";
+                    }
+                    pairedArticle.appendChild(goBackButton);
+
+                    let helloTextDiv = document.createElement("div");
+                    helloTextDiv.textContent = "Hello ";
+                    helloTextDiv.style.marginTop = "2rem";
+                    pairedArticle.appendChild(helloTextDiv);
+
+                    let participantNameSpan = document.createElement("span");
+                    if (participantIndex) {
+                        participantNameSpan.textContent = pairs.names[participantIndex];
+                    }
+                    helloTextDiv.appendChild(participantNameSpan);
+
+                    helloTextDiv.appendChild(document.createTextNode(","));
+
+                    let pairedDiv = document.createElement("div");
+                    pairedDiv.textContent = "You have been paired with ";
+                    if (participantIndex) {
+                        pairedDiv.textContent += pairs.names[pairs.indexes[participantIndex]];
+                    }
+                    pairedArticle.appendChild(pairedDiv);
+
+                    if (!participantIndex) {
+                        let pairedDetails = document.createElement("details");
+                        pairedDetails.addEventListener("toggle", () => {
+                            goBackButton.style.visibility = "hidden"; // redundant, for Firefox compatibility
+                            sessionStorage.setItem(hash, participantIndex);
+                        });
+                        pairedDiv.appendChild(pairedDetails);
+
+                        let pairedSummary = document.createElement("summary");
+                        pairedSummary.textContent = "Click to reveal";
+                        pairedDetails.appendChild(pairedSummary);
+
+                        let pairedNameDiv = document.createElement("div");
+                        pairedDetails.appendChild(pairedNameDiv);
+
+                        for (const [i, name] of pairs.names.entries()) {
+                            let participantButton = document.createElement("button");
+                            participantButton.type = "button";
+                            participantButton.textContent = name;
+                            participantButton.addEventListener("click", () => {
+                                if (confirm("Are you sure you want to see who is paired with " + name + "?")) {
+                                    participantsArticle.style.display = "none";
+                                    pairedArticle.style.display = "flex";
+
+                                    participantIndex = i;
+                                    participantNameSpan.textContent = name;
+                                    pairedNameDiv.textContent = pairs.names[pairs.indexes[i]];
+                                }
+                            });
+                            participantsArticle.appendChild(participantButton);
+                        }
+                    }
+
+                    mainElement.appendChild(participantsArticle);
+                    mainElement.appendChild(pairedArticle);
+                }
+
+                form.style.display = "none";
+            }
+        </script>
+    </body>
+</html>
