@@ -2,7 +2,7 @@
 
 A simple and private Secret Santa generator website that helps you generate random pairings for your Secret Santa gift exchange.
 
-Available at https://spyridonasp.github.io/secretsanta/
+Available at <https://secretsanta.page>
 
 ## Features
 
