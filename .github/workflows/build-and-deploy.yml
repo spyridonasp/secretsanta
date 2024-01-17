@@ -1,0 +1,44 @@
+name: Build & Deploy
+run-name: Build & Deploy ${{ github.event.release.tag_name }}
+
+on:
+  release:
+    types:
+      - released
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "build-and-deploy"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: repository
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install html-minifier-terser@7
+      - name: Minify website
+        run: npx html-minifier-terser --collapse-whitespace --remove-attribute-quotes --remove-comments --minify-js true --minify-css true --file-ext html --input-dir repository/ --output-dir _site/
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
