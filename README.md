@@ -1,8 +1,8 @@
-# Secret Santa Generator
+# Private Secret Santa Generator
 
 A simple and private Secret Santa generator website that helps you generate random pairings for your Secret Santa gift exchange.
 
-Available at <https://secretsanta.page>
+Available at <https://privatesanta.org>
 
 ## Features
 
