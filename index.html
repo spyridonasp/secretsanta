@@ -284,8 +284,9 @@
                 label.children[0].value = "";
                 label.children[0].required = false;
                 label.children[1].addEventListener("click", () => removeParticipant(label));
-
                 participantFieldset.appendChild(label);
+
+                label.focus();
             }
 
             function removeParticipant(participantLabelToRemove) {
