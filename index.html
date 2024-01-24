@@ -57,15 +57,16 @@
                 gap: 1rem;
                 border: none;
                 margin: 0;
-                padding: 0;
+                padding: 0 0 1rem;
             }
 
             fieldset > legend {
-                padding-bottom: 0.5rem;
+                padding: 0 0 0.5rem;
             }
 
             fieldset > label {
                 display: flex;
+                justify-content: space-between;
                 gap: 1rem;
             }
 
@@ -76,9 +77,9 @@
 
             #form-buttons {
                 display: flex;
-                justify-content: space-evenly;
+                justify-content: space-between;
                 gap: 1rem;
-                padding: 1rem 0;
+                padding-bottom: 1rem;
             }
 
             button {
@@ -159,30 +160,33 @@
                 font-size: 1.25rem;
             }
 
-            details {
+            details.hidden {
                 display: inline;
             }
 
             summary {
-                display: block;
                 cursor: pointer;
                 padding: 0.25ch 0.5ch;
                 background-color: color-mix(in oklab, var(--background-color), grey 60%);
             }
 
-            summary::-webkit-details-marker {
+            details.hidden > summary {
+                display: block;
+            }
+
+            details.hidden > summary::-webkit-details-marker {
                 display: none;
             }
 
-            button:has(~ div > details[open]) {
+            button:has(~ div > details[open].hidden) {
                 visibility: hidden;
             }
 
-            details[open] > summary {
+            details[open].hidden > summary {
                 display: none;
             }
 
-            details[open] > div {
+            details[open].hidden > div {
                 padding: 0.25ch 0;
             }
 
@@ -242,6 +246,7 @@
                 </fieldset>
                 <div id="form-buttons">
                     <button type="button">Add another participant</button>
+                    <button type="button"><span>Show</span><span style="display: none">Hide</span> advanced options</button>
                     <button type="submit">Generate random pairings</button>
                 </div>
             </form>
@@ -254,7 +259,7 @@
             <a href="https://github.com/spyridonasp/secretsanta">About</a>
         </footer>
         <script type="module">
-            let pairs = {
+            window.pairs = {
                 names: [],
                 namesBytes: [],
                 indexes: [],
@@ -313,24 +318,34 @@
 
             document.getElementById("form-buttons").children[0].addEventListener("click", addParticipant);
 
+            const ADVANCED_OPTIONS_FILE = "advanced-options.mjs";
+            document.getElementById("form-buttons").children[1].addEventListener("click", () => import("/" + ADVANCED_OPTIONS_FILE), {once: true});
+
+            window.getParticipantNames = () => {
+                let formData = new FormData(form);
+                let participantNames = formData.getAll("participantName[]");
+                return participantNames.map(name => name.trim()).filter(name => name).sort();
+            }
+
+            window.generateIndexes = () => {
+                let pairIndexes = [...Array(pairs.size).keys()];
+                for (let i = pairs.size - 1; i > 0; --i) {
+                    let j = Math.floor(Math.random() * i);
+                    [pairIndexes[i], pairIndexes[j]] = [pairIndexes[j], pairIndexes[i]];
+                }
+                return pairIndexes;
+            }
+
             form.onsubmit = (event) => {
                 event.preventDefault();
 
                 allLinksDiv.replaceChildren();
                 createIndividualLinksButton.style.display = "";
 
-                let formData = new FormData(form);
-                let participantNames = formData.getAll("participantName[]");
-                participantNames = participantNames.map(name => name.trim()).filter(name => name).sort();
-                pairs.names = participantNames;
-                pairs.namesBytes = participantNames.map(name => new TextEncoder().encode(name));
-
-                let pairIndexes = [...Array(pairs.size).keys()];
-                for (let i = pairs.size - 1; i > 0; --i) {
-                    let j = Math.floor(Math.random() * i);
-                    [pairIndexes[i], pairIndexes[j]] = [pairIndexes[j], pairIndexes[i]];
-                }
-                pairs.indexes = pairIndexes;
+                pairs.names = getParticipantNames();
+                pairs.namesBytes = pairs.names.map(name => new TextEncoder().encode(name));
+                pairs.indexes = generateIndexes();
+                if (!pairs.indexes) return;
 
                 let rawData = new Uint8Array(pairs.namesBytes.reduce((count, name) => {
                     return count + 1 + name.length;
@@ -438,6 +453,7 @@
                     pairedArticle.appendChild(pairedDiv);
 
                     let pairedDetails = document.createElement("details");
+                    pairedDetails.classList.add("hidden");
                     pairedDiv.appendChild(pairedDetails);
 
                     let pairedSummary = document.createElement("summary");
@@ -513,6 +529,7 @@
 
                     if (!participantIndex) {
                         let pairedDetails = document.createElement("details");
+                        pairedDetails.classList.add("hidden");
                         pairedDetails.addEventListener("toggle", () => {
                             goBackButton.style.visibility = "hidden"; // redundant, for Firefox compatibility
                             sessionStorage.setItem(hash, participantIndex);
