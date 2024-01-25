@@ -270,12 +270,26 @@
             let form = document.getElementsByTagName("form")[0];
             let participantFieldset = form.getElementsByTagName("fieldset")[0];
             for (const label of participantFieldset.getElementsByTagName("label")) {
+                label.children[0].addEventListener("keydown", handleEnterOnParticipantNameInput);
                 label.children[1].addEventListener("click", () => removeParticipant(label));
             }
             let allLinksArticle = document.getElementById("all-links-article");
             let allLinksDiv = document.getElementById("all-links-div");
             let createIndividualLinksButton = document.getElementById("create-individual-links-button");
             createIndividualLinksButton.addEventListener("click", createIndividualLinks);
+
+            function handleEnterOnParticipantNameInput(event) {
+                const label = this.parentElement;
+                if (event.key === "Enter" && this.value.length) {
+                    event.preventDefault();
+
+                    if (label.nextElementSibling) {
+                        label.nextElementSibling.focus();
+                    } else {
+                        addParticipant();
+                    }
+                }
+            }
 
             function addParticipant() {
                 let participantRemoveButtons = participantFieldset.getElementsByTagName("button");
@@ -288,6 +302,7 @@
                 let label = participantFieldset.getElementsByTagName("label")[0].cloneNode(true);
                 label.children[0].value = "";
                 label.children[0].required = false;
+                label.children[0].addEventListener("keydown", handleEnterOnParticipantNameInput);
                 label.children[1].addEventListener("click", () => removeParticipant(label));
                 participantFieldset.appendChild(label);
 
