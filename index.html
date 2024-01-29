@@ -7,11 +7,6 @@
         <meta property="og:title" content="Simple & Private Secret Santa Generator">
         <meta name="description" content="Simple and private Secret Santa generator that helps you generate random pairings for your Secret Santa gift exchange">
         <style>
-            :root {
-                --background-color: white;
-                --color: black;
-            }
-
             html {
                 height: 100%;
             }
@@ -23,17 +18,13 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                color: white;
+                background: #a00606 linear-gradient(180deg, #e21818 0%, #a00606 90%) fixed;
             }
 
             @media (prefers-color-scheme: dark) {
-                :root {
-                    --background-color: black;
-                    --color: white;
-                }
-
                 body {
-                    background-color: var(--background-color);
-                    color: var(--color);
+                    background: #480000 linear-gradient(180deg, #a00606 0%, #480000 90%) fixed;
                 }
             }
 
@@ -115,8 +106,8 @@
                 border: none;
                 padding: 0;
                 height: 1.25rem;
-                background-color: var(--background-color);
-                color: var(--color);
+                background: none;
+                color: white;
             }
 
             .share-link-buttons {
@@ -128,8 +119,7 @@
             #line-separator {
                 grid-column: 1 / -1;
                 height: 1px;
-                background-color: var(--background-color);
-                filter: invert(1);
+                background: white;
             }
 
             #create-individual-links-button {
@@ -167,7 +157,7 @@
             summary {
                 cursor: pointer;
                 padding: 0.25ch 0.5ch;
-                background-color: color-mix(in oklab, var(--background-color), grey 60%);
+                background-color: #515050;
             }
 
             details.hidden > summary {
@@ -196,11 +186,7 @@
             }
 
             footer > a {
-                color: color-mix(in oklab, var(--color), #c1c1c1 50%);
-            }
-
-            footer > a:hover {
-                color: var(--color);
+                color: white;
             }
 
             @media screen and (max-width: 425px) {
