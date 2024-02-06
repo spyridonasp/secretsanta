@@ -112,7 +112,7 @@ window.generateIndexes = () => {
         const pairIndexes = shuffleIndexes();
 
         if (pairIndexes.every((secretSanta, i) => !exclusionIndexes[i]?.includes(secretSanta) ?? true)) {
-            return pairIndexes;
+            return pairIndexes.map((secretSanta) => pairIndexes[secretSanta]);
         }
     }
 
