@@ -319,8 +319,9 @@
 
             document.getElementById("form-buttons").children[0].addEventListener("click", addParticipant);
 
+            const WEBSITE_URL = location.origin + location.pathname.replace(/[^/]*$/, "");
             const ADVANCED_OPTIONS_FILE = "advanced-options.mjs";
-            document.getElementById("form-buttons").children[1].addEventListener("click", () => import("/" + ADVANCED_OPTIONS_FILE), {once: true});
+            document.getElementById("form-buttons").children[1].addEventListener("click", () => import(WEBSITE_URL + ADVANCED_OPTIONS_FILE), {once: true});
 
             window.getParticipantNames = () => {
                 let formData = new FormData(form);
@@ -371,7 +372,7 @@
             };
 
             function addNewLink(label, hashFragment) {
-                const link = "https://" + location.hostname + location.pathname + "#" + hashFragment;
+                const link = WEBSITE_URL + "#" + hashFragment;
                 const inputID = "link-" + Math.floor(allLinksDiv.childElementCount / 3);
 
                 let participantName = document.createElement("label");
