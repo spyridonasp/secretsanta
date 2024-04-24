@@ -181,12 +181,21 @@
             }
 
             footer {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                width: calc(100% - 2rem);
                 padding: 1rem;
                 text-align: center;
             }
 
             footer > a {
+                grid-column: 2;
                 color: white;
+            }
+
+            footer > div {
+                text-align: right;
+                padding-right: 1rem;
             }
 
             @media screen and (max-width: 480px) {
@@ -243,6 +252,7 @@
         </main>
         <footer>
             <a href="https://github.com/spyridonasp/secretsanta">About</a>
+            <div>{VERSION}</div>
         </footer>
         <script type="module">
             window.pairs = {

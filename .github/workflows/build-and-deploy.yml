@@ -32,6 +32,8 @@ jobs:
         run: |
           npm install terser@5
           npm install html-minifier-terser@7
+      - name: Replace {VERSION} with ${{ github.event.release.tag_name }}
+        run: sed -i "s/{VERSION}/${{ github.event.release.tag_name }}/g" repository/*
       - name: Minify website
         run: |
           npx html-minifier-terser --collapse-whitespace --remove-attribute-quotes --remove-comments --minify-js '{"module":true,"compress":{"global_defs":{"ADVANCED_OPTIONS_FILE":"a.js"}},"mangle":{"properties":{"regex":".*"}}}' --minify-css true --file-ext html --input-dir repository/ --output-dir _site/
