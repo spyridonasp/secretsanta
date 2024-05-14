@@ -403,24 +403,18 @@
                 let copyButton = document.createElement("button");
                 copyButton.type = "button";
                 copyButton.textContent = "Copy";
-                copyButton.addEventListener("click", () => copyLink(link));
+                copyButton.addEventListener("click", () => navigator.clipboard.writeText(link));
                 shareButtonsDiv.appendChild(copyButton);
 
-                let shareButton = document.createElement("button");
-                shareButton.type = "button";
-                shareButton.textContent = "Share";
-                shareButton.addEventListener("click", () => shareLink(link));
-                shareButtonsDiv.appendChild(shareButton);
+                if (navigator.share) {
+                    let shareButton = document.createElement("button");
+                    shareButton.type = "button";
+                    shareButton.textContent = "Share";
+                    shareButton.addEventListener("click", () => navigator.share({title: "Secret Santa", url: link}));
+                    shareButtonsDiv.appendChild(shareButton);
+                }
 
                 allLinksDiv.appendChild(shareButtonsDiv);
-            }
-
-            function copyLink(link) {
-                navigator.clipboard.writeText(link);
-            }
-
-            function shareLink(link) {
-                navigator.share({title: "Secret Santa", url: link});
             }
 
             function createIndividualLinks() {
