@@ -111,8 +111,8 @@ window.generateIndexes = () => {
     while (performance.now() < entTimestamp) {
         const pairIndexes = shuffleIndexes();
 
-        if (pairIndexes.every((secretSanta, i) => !exclusionIndexes[i]?.includes(secretSanta) ?? true)) {
-            return pairIndexes.map((secretSanta) => pairIndexes[secretSanta]);
+        if (exclusionIndexes.every((excludedSecretSantas, i) => excludedSecretSantas.every((excludedSanta) => pairIndexes[excludedSanta] != i))) {
+            return pairIndexes;
         }
     }
 
