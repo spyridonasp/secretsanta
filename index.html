@@ -363,20 +363,18 @@
                 pairs.indexes = generateIndexes();
                 if (!pairs.indexes) return;
 
-                let rawData = new Uint8Array(pairs.namesBytes.reduce((count, name) => {
+                let rawData = new Uint8Array(1 + pairs.namesBytes.reduce((count, name) => {
                     return count + 1 + name.length;
-                }, 0) + 1 + pairs.size);
+                }, 0) + pairs.size);
 
                 let i = 0;
+                rawData[i++] = pairs.size;
                 for (const name of pairs.namesBytes) {
                     rawData[i++] = name.length;
                     rawData.set(name, i);
                     i += name.length;
                 }
-                ++i;
-                for (const index of pairs.indexes) {
-                    rawData[i++] = index;
-                }
+                rawData.set(pairs.indexes, i);
 
                 const encodedData = encodeData(rawData);
 
@@ -430,7 +428,6 @@
 
                 for (const [i, name] of pairs.names.entries()) {
                     let rawData = new Uint8Array(1 + pairs.namesBytes[pairs.indexes[i]].length);
-                    rawData[0] = pairs.namesBytes[pairs.indexes[i]].length;
                     rawData.set(pairs.namesBytes[pairs.indexes[i]], 1);
 
                     const encodedData = encodeData(rawData);
@@ -444,10 +441,8 @@
                 const hash = location.hash.substring(1);
                 const rawData = decodeData(hash);
 
-                let i = 0;
-                let nameSize = rawData[i++];
-                if (1 + nameSize === rawData.length) {
-                    const nameBytes = rawData.subarray(i, i + nameSize);
+                if (rawData[0] === 0) {
+                    const nameBytes = rawData.subarray(1);
                     const name = new TextDecoder("utf-8", {fatal: true}).decode(nameBytes);
 
                     let pairedArticle = document.createElement("article");
@@ -476,12 +471,13 @@
 
                     mainElement.appendChild(pairedArticle);
                 } else {
-                    while (nameSize !== 0) {
+                    let i = 1;
+                    for (let j = 0; j < rawData[0]; ++j) {
+                        let nameSize = rawData[i++];
                         let nameBytes = rawData.subarray(i, i + nameSize);
                         pairs.names.push(new TextDecoder("utf-8", {fatal: true}).decode(nameBytes));
 
                         i += nameSize;
-                        nameSize = rawData[i++];
                     }
 
                     pairs.indexes = Array.from(rawData.subarray(i));
