@@ -441,17 +441,15 @@
                 const hash = location.hash.substring(1);
                 const rawData = decodeData(hash);
 
-                if (rawData[0] === 0) {
-                    const nameBytes = rawData.subarray(1);
-                    const name = new TextDecoder("utf-8", {fatal: true}).decode(nameBytes);
-
+                function createPairedArticle(greeting, name) {
                     let pairedArticle = document.createElement("article");
                     pairedArticle.id = "paired-article";
                     pairedArticle.style.display = "flex";
 
-                    let congratulationsTextDiv = document.createElement("div");
-                    congratulationsTextDiv.textContent = "Congratulations!";
-                    pairedArticle.appendChild(congratulationsTextDiv);
+                    let greetingTextDiv = document.createElement("div");
+                    greetingTextDiv.style.marginTop = "2rem";
+                    greetingTextDiv.textContent = greeting;
+                    pairedArticle.appendChild(greetingTextDiv);
 
                     let pairedDiv = document.createElement("div");
                     pairedDiv.textContent = "You have been paired with ";
@@ -470,105 +468,74 @@
                     pairedDetails.appendChild(pairedNameDiv);
 
                     mainElement.appendChild(pairedArticle);
-                } else {
-                    let i = 1;
-                    for (let j = 0; j < rawData[0]; ++j) {
-                        let nameSize = rawData[i++];
-                        let nameBytes = rawData.subarray(i, i + nameSize);
-                        pairs.names.push(new TextDecoder("utf-8", {fatal: true}).decode(nameBytes));
+                    return pairedArticle;
+                }
 
-                        i += nameSize;
+                switch (rawData[0]) {
+                    case 0: {
+                        const nameBytes = rawData.subarray(1);
+                        const name = new TextDecoder("utf-8", {fatal: true}).decode(nameBytes);
+
+                        createPairedArticle("Congratulations!", name);
+                        break;
                     }
+                    default: {
+                        let i = 1;
+                        for (let j = 0; j < rawData[0]; ++j) {
+                            let nameSize = rawData[i++];
+                            let nameBytes = rawData.subarray(i, i + nameSize);
+                            pairs.names.push(new TextDecoder("utf-8", {fatal: true}).decode(nameBytes));
 
-                    pairs.indexes = Array.from(rawData.subarray(i));
-
-                    let participantIndex = sessionStorage.getItem(hash);
-
-                    let participantsArticle = document.createElement("article");
-                    participantsArticle.id = "participants-article";
-                    if (participantIndex) {
-                        participantsArticle.style.display = "none";
-                    }
-
-                    let participantsTextDiv = document.createElement("div");
-                    participantsTextDiv.textContent = "Please select your name";
-                    participantsArticle.appendChild(participantsTextDiv);
-
-                    let pairedArticle = document.createElement("article");
-                    pairedArticle.id = "paired-article";
-                    if (participantIndex) {
-                        pairedArticle.style.display = "flex";
-                    }
-
-                    let goBackButton = document.createElement("button");
-                    goBackButton.type = "button";
-                    goBackButton.textContent = "Go back";
-                    goBackButton.style.width = "max-content";
-                    goBackButton.addEventListener("click", () => {
-                        participantsArticle.style.display = "";
-                        pairedArticle.style.display = "";
-                    });
-                    if (participantIndex) {
-                        goBackButton.style.visibility = "hidden";
-                    }
-                    pairedArticle.appendChild(goBackButton);
-
-                    let helloTextDiv = document.createElement("div");
-                    helloTextDiv.textContent = "Hello ";
-                    helloTextDiv.style.marginTop = "2rem";
-                    pairedArticle.appendChild(helloTextDiv);
-
-                    let participantNameSpan = document.createElement("span");
-                    if (participantIndex) {
-                        participantNameSpan.textContent = pairs.names[participantIndex];
-                    }
-                    helloTextDiv.appendChild(participantNameSpan);
-
-                    helloTextDiv.appendChild(document.createTextNode(","));
-
-                    let pairedDiv = document.createElement("div");
-                    pairedDiv.textContent = "You have been paired with ";
-                    if (participantIndex) {
-                        pairedDiv.textContent += pairs.names[pairs.indexes[participantIndex]];
-                    }
-                    pairedArticle.appendChild(pairedDiv);
-
-                    if (!participantIndex) {
-                        let pairedDetails = document.createElement("details");
-                        pairedDetails.classList.add("hidden");
-                        pairedDetails.addEventListener("toggle", () => {
-                            goBackButton.style.visibility = "hidden"; // redundant, for Firefox compatibility
-                            sessionStorage.setItem(hash, participantIndex);
-                        });
-                        pairedDiv.appendChild(pairedDetails);
-
-                        let pairedSummary = document.createElement("summary");
-                        pairedSummary.textContent = "Click to reveal";
-                        pairedDetails.appendChild(pairedSummary);
-
-                        let pairedNameDiv = document.createElement("div");
-                        pairedDetails.appendChild(pairedNameDiv);
-
-                        for (const [i, name] of pairs.names.entries()) {
-                            let participantButton = document.createElement("button");
-                            participantButton.type = "button";
-                            participantButton.textContent = name;
-                            participantButton.addEventListener("click", () => {
-                                if (confirm("Are you sure you want to see who is paired with " + name + "?")) {
-                                    participantsArticle.style.display = "none";
-                                    pairedArticle.style.display = "flex";
-
-                                    participantIndex = i;
-                                    participantNameSpan.textContent = name;
-                                    pairedNameDiv.textContent = pairs.names[pairs.indexes[i]];
-                                }
-                            });
-                            participantsArticle.appendChild(participantButton);
+                            i += nameSize;
                         }
-                    }
 
-                    mainElement.appendChild(participantsArticle);
-                    mainElement.appendChild(pairedArticle);
+                        pairs.indexes = Array.from(rawData.subarray(i));
+
+                        let participantIndex = sessionStorage.getItem(hash);
+
+                        if (!participantIndex) {
+                            let participantsArticle = document.createElement("article");
+                            participantsArticle.id = "participants-article";
+
+                            let participantsTextDiv = document.createElement("div");
+                            participantsTextDiv.textContent = "Please select your name";
+                            participantsArticle.appendChild(participantsTextDiv);
+
+                            for (const [i, name] of pairs.names.entries()) {
+                                let participantButton = document.createElement("button");
+                                participantButton.type = "button";
+                                participantButton.textContent = name;
+                                participantButton.addEventListener("click", () => {
+                                    if (confirm(`Are you sure you want to see who is paired with ${name}?`)) {
+                                        participantsArticle.style.display = "none";
+
+                                        let pairedArticle = createPairedArticle(`Hello ${name},`, pairs.names[pairs.indexes[i]]);
+
+                                        let goBackButton = document.createElement("button");
+                                        goBackButton.type = "button";
+                                        goBackButton.textContent = "Go back";
+                                        goBackButton.style.width = "max-content";
+                                        goBackButton.addEventListener("click", () => {
+                                            participantsArticle.style.display = "";
+                                            pairedArticle.remove();
+                                        });
+                                        pairedArticle.prepend(goBackButton);
+
+                                        pairedArticle.getElementsByTagName("details")[0].addEventListener("toggle", () => {
+                                            goBackButton.style.visibility = "hidden"; // redundant, for Firefox compatibility
+                                            sessionStorage.setItem(hash, i);
+                                        });
+                                    }
+                                });
+                                participantsArticle.appendChild(participantButton);
+                            }
+
+                            mainElement.appendChild(participantsArticle);
+                        } else {
+                            createPairedArticle(`Hello ${pairs.names[participantIndex]},`, pairs.names[pairs.indexes[participantIndex]]);
+                        }
+                        break;
+                    }
                 }
 
                 form.style.display = "none";
