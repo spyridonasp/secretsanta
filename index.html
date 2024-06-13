@@ -102,6 +102,7 @@
             }
 
             .share-link {
+                font-family: monospace;
                 font-size: 1rem;
                 border: none;
                 padding: 0;
@@ -274,6 +275,10 @@
                 RESERVED: 2
             };
 
+            const ADVANCED_INDIVIDUAL_LINK_TYPES = {
+                RANDOM_PADDING: 0
+            };
+
             let form = document.getElementsByTagName("form")[0];
             let participantFieldset = form.getElementsByTagName("fieldset")[0];
             for (const label of participantFieldset.getElementsByTagName("label")) {
@@ -390,8 +395,9 @@
                 allLinksArticle.style.display = "flex";
             };
 
-            function addNewLink(label, hashFragment) {
-                const link = WEBSITE_URL + "#" + hashFragment;
+            function addNewLink(label, visibleHashFragment, copyHashFragment = visibleHashFragment) {
+                const visibleLink = WEBSITE_URL + "#" + visibleHashFragment;
+                const copyLink = WEBSITE_URL + "#" + copyHashFragment;
                 const inputID = "link-" + Math.floor(allLinksDiv.childElementCount / 3);
 
                 let participantName = document.createElement("label");
@@ -402,8 +408,12 @@
                 let inputElement = document.createElement("input");
                 inputElement.id = inputID;
                 inputElement.classList.add("share-link");
-                inputElement.value = link;
+                inputElement.value = visibleLink;
                 inputElement.readOnly = true;
+                inputElement.addEventListener("copy", event => {
+                    event.preventDefault();
+                    event.clipboardData.setData("text/plain", copyLink);
+                });
                 allLinksDiv.appendChild(inputElement);
 
                 let shareButtonsDiv = document.createElement("div");
@@ -412,14 +422,14 @@
                 let copyButton = document.createElement("button");
                 copyButton.type = "button";
                 copyButton.textContent = "Copy";
-                copyButton.addEventListener("click", () => navigator.clipboard.writeText(link));
+                copyButton.addEventListener("click", () => navigator.clipboard.writeText(copyLink));
                 shareButtonsDiv.appendChild(copyButton);
 
                 if (navigator.share) {
                     let shareButton = document.createElement("button");
                     shareButton.type = "button";
                     shareButton.textContent = "Share";
-                    shareButton.addEventListener("click", () => navigator.share({title: "Secret Santa", url: link}));
+                    shareButton.addEventListener("click", () => navigator.share({title: "Secret Santa", url: copyLink}));
                     shareButtonsDiv.appendChild(shareButton);
                 }
 
@@ -433,13 +443,26 @@
 
                 createIndividualLinksButton.style.display = "none";
 
+                const maxNameBytesLength = pairs.namesBytes.reduce((maxNameBytesLength, nameBytes) => Math.max(maxNameBytesLength, nameBytes.length), 0);
+
                 for (const [i, name] of pairs.names.entries()) {
-                    let rawData = new Uint8Array(1 + pairs.namesBytes[pairs.indexes[i]].length);
-                    rawData.set(pairs.namesBytes[pairs.indexes[i]], 1);
+                    let rawData = new Uint8Array(1 + 1 + maxNameBytesLength + 1);
+                    let byte_index = 0
+                    rawData[byte_index++] = LINK_TYPES.ADVANCED_INDIVIDUAL_LINK;
+                    rawData[byte_index++] = pairs.namesBytes[pairs.indexes[i]].length;
+                    rawData.set(pairs.namesBytes[pairs.indexes[i]], byte_index);
+                    byte_index += pairs.namesBytes[pairs.indexes[i]].length;
 
-                    const encodedData = encodeData(rawData);
+                    byte_index++; // rawData[byte_index++] = ADVANCED_INDIVIDUAL_LINK_TYPES.RANDOM_PADDING;
 
-                    addNewLink(name, encodedData);
+                    let randomPadding = [...Array(maxNameBytesLength - pairs.namesBytes[pairs.indexes[i]].length)].map(() => Math.floor(Math.random() * 256));
+                    rawData.set(randomPadding, byte_index);
+
+                    const visibleHashFragment = encodeData(rawData);
+                    rawData[1] = LINK_TYPES.BASIC_INDIVIDUAL_LINK;
+                    const copyHashFragment = encodeData(rawData.subarray(1, 1 + 1 + pairs.namesBytes[pairs.indexes[i]].length));
+
+                    addNewLink(name, visibleHashFragment, copyHashFragment);
                 }
             }
 
