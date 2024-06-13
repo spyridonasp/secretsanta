@@ -267,6 +267,13 @@
                     return this.names.length;
                 }
             };
+
+            const LINK_TYPES = {
+                BASIC_INDIVIDUAL_LINK: 0,
+                ADVANCED_INDIVIDUAL_LINK: 1,
+                RESERVED: 2
+            };
+
             let form = document.getElementsByTagName("form")[0];
             let participantFieldset = form.getElementsByTagName("fieldset")[0];
             for (const label of participantFieldset.getElementsByTagName("label")) {
@@ -472,8 +479,10 @@
                 }
 
                 switch (rawData[0]) {
-                    case 0: {
-                        const nameBytes = rawData.subarray(1);
+                    case LINK_TYPES.BASIC_INDIVIDUAL_LINK:
+                    case LINK_TYPES.ADVANCED_INDIVIDUAL_LINK: {
+                        const nameSize = rawData[0]? rawData[1] : rawData.length - 1;
+                        const nameBytes = rawData.subarray(rawData[0] + 1, rawData[0] + 1 + nameSize);
                         const name = new TextDecoder("utf-8", {fatal: true}).decode(nameBytes);
 
                         createPairedArticle("Congratulations!", name);
