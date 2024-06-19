@@ -3,6 +3,15 @@ let advancedOptions = {
     exclusionCheckboxes: []
 };
 
+let advancedOptionsStyle = document.createElement("style");
+advancedOptionsStyle.innerHTML = "\
+details{border:1px solid #fff}\
+summary{background-color:#000}\
+details[open]>summary{border-bottom:1px solid #fff}\
+details>label:has(input:checked){text-decoration:line-through}\
+#exclusions-error{border:.25ch solid red;padding:.5ch;background:#ff000080;text-align:center}";
+document.head.appendChild(advancedOptionsStyle);
+
 let form = document.getElementsByTagName("form")[0];
 let formButtons = document.getElementById("form-buttons");
 let advancedOptionsSpans = formButtons.children[1].getElementsByTagName("span");
@@ -59,7 +68,7 @@ configureExclusionsOptionButton.addEventListener("click", () => {
         configureExclusionsFieldset.appendChild(exclusionDetails);
 
         let exclusionSummary = document.createElement("summary");
-        exclusionSummary.style.padding = "0.25rem";
+        exclusionSummary.style.padding = "0.5ch 1ch";
         exclusionSummary.textContent = name;
         exclusionDetails.appendChild(exclusionSummary);
 
@@ -67,7 +76,7 @@ configureExclusionsOptionButton.addEventListener("click", () => {
             if (i === j) continue;
 
             let potentialPairLabel = document.createElement("label");
-            potentialPairLabel.style.marginTop = "0.5rem";
+            potentialPairLabel.style.margin = "0.5rem";
 
             let potentialPairInput = document.createElement("input");
             advancedOptions.exclusionCheckboxes[i].push({index: j, input: potentialPairInput});
@@ -117,10 +126,7 @@ window.generateIndexes = () => {
     }
 
     let errorDiv = document.createElement("div");
-    errorDiv.style.border = "0.25ch solid red";
-    errorDiv.style.padding = "0.5ch";
-    errorDiv.style.background = "#ff000080";
-    errorDiv.style.textAlign = "center";
+    errorDiv.id = "exclusions-error";
     errorDiv.textContent = "You have configured exclusions that prevent certain participants from being paired with anyone";
     form.appendChild(errorDiv);
 
