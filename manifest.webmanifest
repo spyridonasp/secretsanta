@@ -1,0 +1,19 @@
+{
+    "name": "Secret Santa Generator",
+    "short_name": "Secret Santa",
+    "description": "Simple and private Secret Santa generator that helps you generate random pairings for your Secret Santa gift exchange.",
+    "start_url": ".",
+    "display": "standalone",
+    "icons": [
+        {
+            "src": "favicon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "favicon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

@@ -33,11 +33,15 @@ jobs:
           npm install terser@5
           npm install html-minifier-terser@7
       - name: Replace {VERSION} with ${{ github.event.release.tag_name }}
-        run: sed -i "s/{VERSION}/${{ github.event.release.tag_name }}/g" repository/*
+        run: find repository/ \( -type d -name favicons -prune \) -o -type f -exec sed -i "s/{VERSION}/${{ github.event.release.tag_name }}/g" {} +
       - name: Minify website
         run: |
           npx html-minifier-terser --collapse-whitespace --remove-attribute-quotes --remove-comments --minify-js '{"module":true,"compress":{"global_defs":{"ADVANCED_OPTIONS_FILE":"a.js"}},"mangle":{"properties":{"regex":".*"}}}' --minify-css true --file-ext html --input-dir repository/ --output-dir _site/
           npx terser --module --compress --mangle --mangle-props 'regex=".*"' --output _site/a.js -- repository/advanced-options.mjs
+      - name: Minify manifest.webmanifest
+        run: jq . -c repository/manifest.webmanifest > _site/manifest.webmanifest
+      - name: Move favicons
+        run: mv repository/favicons/* _site/
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
 
