@@ -352,7 +352,7 @@
             window.getParticipantNames = () => {
                 let formData = new FormData(form);
                 let participantNames = formData.getAll("participantName[]");
-                return participantNames.map(name => name.trim()).filter(name => name).sort();
+                return participantNames.map(name => name.trim()).filter(name => name).sort(Intl.Collator().compare);
             }
 
             window.generateIndexes = () => {
