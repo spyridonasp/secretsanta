@@ -1,5 +1,5 @@
 {
-    "name": "Secret Santa Generator",
+    "name": "Private Secret Santa Generator",
     "short_name": "Secret Santa",
     "description": "Simple and private Secret Santa generator that helps you generate random pairings for your Secret Santa gift exchange.",
     "start_url": ".",
