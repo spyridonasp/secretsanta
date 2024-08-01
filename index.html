@@ -287,7 +287,7 @@
             let participantFieldset = form.getElementsByTagName("fieldset")[0];
             for (const label of participantFieldset.getElementsByTagName("label")) {
                 label.children[0].addEventListener("keydown", handleEnterOnParticipantNameInput);
-                label.children[1].addEventListener("click", () => removeParticipant(label));
+                label.children[1].addEventListener("click", removeParticipant);
             }
             let allLinksArticle = document.getElementById("all-links-article");
             let allLinksDiv = document.getElementById("all-links-div");
@@ -319,16 +319,16 @@
                 label.children[0].value = "";
                 label.children[0].required = false;
                 label.children[0].addEventListener("keydown", handleEnterOnParticipantNameInput);
-                label.children[1].addEventListener("click", () => removeParticipant(label));
+                label.children[1].addEventListener("click", removeParticipant);
                 participantFieldset.appendChild(label);
 
                 label.focus();
             }
 
-            function removeParticipant(participantLabelToRemove) {
+            function removeParticipant() {
                 let participantLabels = participantFieldset.getElementsByTagName("label");
                 if (participantLabels.length > 3) {
-                    participantLabelToRemove.remove();
+                    this.parentElement.remove();
 
                     if (participantLabels.length === 3) {
                         for (let participantLabel of participantLabels) {
