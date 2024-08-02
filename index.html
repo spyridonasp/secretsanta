@@ -330,10 +330,10 @@
                 if (participantLabels.length > 3) {
                     this.parentElement.remove();
 
-                    if (participantLabels.length === 3) {
-                        for (let participantLabel of participantLabels) {
-                            participantLabel.getElementsByTagName("input")[0].required = true;
-                            participantLabel.getElementsByClassName("remove")[0].style.display = "none";
+                    for (let i = 0; i < 3; i++) {
+                        participantLabels[i].children[0].required = true;
+                        if (participantLabels.length === 3) {
+                            participantLabels[i].children[1].style.display = "none";
                         }
                     }
                 }
