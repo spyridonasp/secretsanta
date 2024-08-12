@@ -1,7 +1,7 @@
 {
     "name": "Private Secret Santa Generator",
     "short_name": "Secret Santa",
-    "description": "Simple and private Secret Santa generator that helps you generate random pairings for your Secret Santa gift exchange.",
+    "description": "Private Secret Santa generator with no email, no cookies, and no data sent to the server, with exclusions to prevent specific pairings.",
     "start_url": ".",
     "display": "standalone",
     "icons": [
