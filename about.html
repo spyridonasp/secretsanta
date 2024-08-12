@@ -100,6 +100,13 @@
                     <li><strong>Convenient Sharing:</strong> Easily share the generated pairings with your group using a group link or individual links for each participant. Note that anyone with access to the group link, has access to all the pairings; fairness is at the discretion of the group participants.</li>
                 </ul>
             </article>
+            <article>
+                <h2>How It Works</h2>
+                <p>When it comes to simple Secret Santa generators that don't require complex features like accounts, email notifications, or wishlists, they all operate by encoding the participants' names and the generated pairings into a string of text. This encoded string is then attached to the shareable URL in a section called the <a href="https://en.wikipedia.org/wiki/Query_string">query string</a>.</p>
+                <p>However, there's a privacy issue with this method. Every time someone uses the link, their browser sends the query string data to the server. This isn't necessary because the browser itself handles the decoding locally, yet it still exposes the participants' names to the server.</p>
+                <p>This generator takes a different approach to protect your privacy. Instead of using the query string, it utilizes the <a href="https://en.wikipedia.org/wiki/URI_fragment">URL fragment identifier</a>. The key advantage of the fragment identifier is that it's never sent to the server, ensuring that all of the participants' names remain private.</p>
+                <p>By using the fragment identifier, it is ensured that participants' names stay confidential, keeping the Secret Santa experience completely private.</p>
+            </article>
         </main>
         <footer>
             <a href=".">Home</a>
