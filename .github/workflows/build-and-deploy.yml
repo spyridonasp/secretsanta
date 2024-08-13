@@ -8,17 +8,17 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
+  deployments: write
 
 concurrency:
   group: "build-and-deploy"
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build
+  build-and-deploy:
+    name: Build & Deploy
     runs-on: ubuntu-latest
+    environment: deployment
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,13 +44,9 @@ jobs:
         run: mv repository/favicons/* _site/
       - name: Move image
         run: mv repository/image.png _site/
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
-
-  deploy:
-    name: Deploy
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: pages deploy _site/ --project-name=${{ secrets.CLOUDFLARE_PROJECT_NAME }} --commit-message=${{ github.event.release.tag_name }}
