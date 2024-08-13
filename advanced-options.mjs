@@ -6,8 +6,9 @@ let advancedOptions = {
 let advancedOptionsStyle = document.createElement("style");
 advancedOptionsStyle.innerHTML = "\
 details{border:1px solid #fff}\
-summary{background-color:#000}\
+summary{background-color:#000;padding:.25rem .5rem;outline-offset:2px}\
 details[open]>summary{border-bottom:1px solid #fff}\
+details>label{display:flex;margin:.5rem;gap:.25rem;align-items:center}\
 details>label:has(input:checked){text-decoration:line-through}\
 #exclusions-error{border:.25ch solid red;padding:.5ch;background:#ff000080;text-align:center}";
 document.head.appendChild(advancedOptionsStyle);
@@ -55,6 +56,7 @@ configureExclusionsOptionButton.addEventListener("click", () => {
     formButtons.children[1].style.display = "none";
 
     let configureExclusionsFieldset = document.createElement("fieldset");
+    configureExclusionsFieldset.style.gap = "1.5rem";
 
     let configureExclusionsFieldsetLegend = document.createElement("legend");
     configureExclusionsFieldsetLegend.textContent = "Select anyone that cannot be the secret santa of a participant";
@@ -64,11 +66,9 @@ configureExclusionsOptionButton.addEventListener("click", () => {
 
     for (const [i, name] of pairs.names.entries()) {
         let exclusionDetails = document.createElement("details");
-        exclusionDetails.style.display = "flex";
         configureExclusionsFieldset.appendChild(exclusionDetails);
 
         let exclusionSummary = document.createElement("summary");
-        exclusionSummary.style.padding = "0.5ch 1ch";
         exclusionSummary.textContent = name;
         exclusionDetails.appendChild(exclusionSummary);
 
@@ -76,7 +76,6 @@ configureExclusionsOptionButton.addEventListener("click", () => {
             if (i === j) continue;
 
             let potentialPairLabel = document.createElement("label");
-            potentialPairLabel.style.margin = "0.5rem";
 
             let potentialPairInput = document.createElement("input");
             advancedOptions.exclusionCheckboxes[i].push({index: j, input: potentialPairInput});
