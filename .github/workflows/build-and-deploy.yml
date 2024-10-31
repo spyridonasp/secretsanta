@@ -38,8 +38,8 @@ jobs:
         run: |
           npx html-minifier-terser --collapse-whitespace --remove-attribute-quotes --remove-comments --minify-js '{"module":true,"compress":{"global_defs":{"ADVANCED_OPTIONS_FILE":"a.js"}},"mangle":{"properties":{"regex":".*"}}}' --minify-css true --file-ext html --input-dir repository/ --output-dir _site/
           npx terser --module --compress --mangle --mangle-props 'regex=".*"' --output _site/a.js -- repository/advanced-options.mjs
-      - name: Minify manifest.webmanifest
-        run: jq . -c repository/manifest.webmanifest > _site/manifest.webmanifest
+      - name: Create manifest.webmanifest
+        run: echo '{"name":"Private Secret Santa Generator","short_name":"Secret Santa","description":"Private Secret Santa generator with no email, no cookies, and no data sent to the server, with exclusions to prevent specific pairings.","start_url":".","display":"standalone","icons":[{"src":"favicon-192x192.png","sizes":"192x192","type":"image/png"},{"src":"favicon-512x512.png","sizes":"512x512","type":"image/png"}]}' > _site/manifest.webmanifest
       - name: Move favicons
         run: mv repository/favicons/* _site/
       - name: Move image
