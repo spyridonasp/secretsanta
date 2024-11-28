@@ -42,6 +42,18 @@ jobs:
         run: echo '{"name":"Private Secret Santa Generator","short_name":"Secret Santa","description":"Private Secret Santa generator with no email, no cookies, and no data sent to the server, with exclusions to prevent specific pairings.","start_url":".","display":"standalone","icons":[{"src":"favicon-192x192.png","sizes":"192x192","type":"image/png"},{"src":"favicon-512x512.png","sizes":"512x512","type":"image/png"}]}' > _site/manifest.webmanifest
       - name: Move images
         run: mv repository/images/* _site/
+      - name: Create robots.txt
+        run: |
+          echo -e "User-agent: *\nAllow: /\nSitemap: https://privatesecretsanta.com/sitemap.xml" > _site/robots.txt
+      - name: Create sitemap.xml
+        run: |
+          echo -n '<?xml version="1.0" encoding="UTF-8"?>' > _site/sitemap.xml
+          echo -n '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> _site/sitemap.xml
+          find _site/ -type f -name "*.html" | while read -r FILE_PATH; do
+            URL_PATH=$(echo ${FILE_PATH#*/} | sed "s/index\.html$//;s/\.html$//")
+            echo -n "<url><loc>https://privatesecretsanta.com/$URL_PATH</loc></url>" >> _site/sitemap.xml
+          done
+          echo -n "</urlset>" >> _site/sitemap.xml
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
